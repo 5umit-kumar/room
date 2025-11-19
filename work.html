@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Team Work Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      color: #1c1e21;
+    }
+    
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    
+    h2 {
+      font-size: 1.8em;
+      color: #1c1e21;
+      margin-bottom: 24px;
+      text-align: center;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border: 1px solid #e4e6eb;
+    }
+    
+    .month-selector {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .month-dropdown {
+      background: #0084ff;
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.95em;
+      cursor: pointer;
+      font-weight: 600;
+      flex: 1;
+      transition: background 0.2s;
+    }
+    
+    .month-dropdown:hover {
+      background: #0073e6;
+    }
+    
+    .year-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .year-btn {
+      background: #e4e6eb;
+      color: #1c1e21;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    
+    .year-btn:hover {
+      background: #d8dadf;
+    }
+    
+    .current-year {
+      font-weight: 700;
+      color: #1c1e21;
+      font-size: 1em;
+      margin: 0 4px;
+      min-width: 50px;
+      text-align: center;
+    }
+    
+    .week-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .nav-btn {
+      background: #0084ff;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    
+    .nav-btn:hover:not(:disabled) {
+      background: #0073e6;
+    }
+    
+    .nav-btn:disabled {
+      background: #e4e6eb;
+      color: #8a8d91;
+      cursor: not-allowed;
+    }
+    
+    .week-info-box {
+      flex: 1;
+      text-align: center;
+    }
+    
+    .week-title {
+      font-weight: 700;
+      font-size: 1em;
+      color: #1c1e21;
+      margin-bottom: 4px;
+    }
+    
+    .week-dates {
+      color: #65676b;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+    
+    .badge-current {
+      display: inline-block;
+      background: #00a400;
+      color: white;
+      font-size: 0.7em;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-left: 6px;
+      font-weight: 600;
+    }
+    
+    .section-title {
+      font-size: 1.1em;
+      font-weight: 700;
+      color: #1c1e21;
+      margin: 24px 0 12px 0;
+      padding-left: 4px;
+    }
+    
+    .task-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .task-item {
+      background: white;
+      margin-bottom: 8px;
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid #e4e6eb;
+    }
+    
+    .task-item:hover {
+      border-color: #0084ff;
+      box-shadow: 0 2px 8px rgba(0,132,255,0.15);
+    }
+    
+    .task-item:active {
+      transform: scale(0.98);
+    }
+    
+    .member-name {
+      font-weight: 600;
+      font-size: 1em;
+      color: #1c1e21;
+    }
+    
+    .work-tag {
+      background: #e7f3ff;
+      color: #0084ff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85em;
+      font-weight: 600;
+    }
+    
+    .basin-grid {
+      display: grid;
+      gap: 8px;
+    }
+    
+    .basin-day {
+      background: white;
+      padding: 14px 16px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 2px solid #e4e6eb;
+      transition: all 0.2s;
+      position: relative;
+    }
+    
+    .basin-day:hover {
+      border-color: #cbd5e0;
+    }
+    
+    .basin-day.today {
+      background: linear-gradient(135deg, #0084ff 0%, #0073e6 100%);
+      border-color: #0084ff;
+      box-shadow: 0 4px 12px rgba(0,132,255,0.3);
+      transform: scale(1.02);
+    }
+    
+    .basin-day.today .basin-day-name {
+      color: white;
+      font-weight: 700;
+    }
+    
+    .basin-day.today .basin-member {
+      background: rgba(255,255,255,0.25);
+      color: white;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    .basin-day.today::before {
+      content: "TODAY";
+      position: absolute;
+      top: -8px;
+      right: 12px;
+      background: #00a400;
+      color: white;
+      font-size: 0.7em;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(0,164,0,0.4);
+    }
+    
+    .basin-day-name {
+      font-weight: 600;
+      font-size: 0.95em;
+      color: #1c1e21;
+    }
+    
+    .basin-member {
+      font-weight: 600;
+      font-size: 0.9em;
+      color: #65676b;
+      background: #f0f2f5;
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+    
+    .profile-modal {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 16px;
+      display: none;
+      position: relative;
+      border: 1px solid #e4e6eb;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    
+    .profile-modal.active {
+      display: block;
+      animation: slideUp 0.3s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .profile-header {
+      font-size: 1.4em;
+      font-weight: 700;
+      color: #1c1e21;
+      margin-bottom: 8px;
+    }
+    
+    .profile-label {
+      color: #65676b;
+      font-size: 0.9em;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    
+    .work-chip {
+      display: inline-block;
+      background: #0084ff;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.05em;
+      margin-top: 8px;
+    }
+    
+    .schedule-section {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #e4e6eb;
+    }
+    
+    .schedule-title {
+      font-size: 1.1em;
+      font-weight: 700;
+      color: #1c1e21;
+      margin-bottom: 12px;
+    }
+    
+    .schedule-item {
+      background: #f0f2f5;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    
+    .schedule-item:hover {
+      background: #e4e6eb;
+    }
+    
+    .schedule-item.current-week {
+      background: #e7f3ff;
+      border-color: #0084ff;
+    }
+    
+    .schedule-week-title {
+      color: #0084ff;
+      font-weight: 700;
+      font-size: 0.95em;
+      margin-bottom: 6px;
+    }
+    
+    .schedule-work-value {
+      color: #1c1e21;
+      font-weight: 600;
+      background: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      display: inline-block;
+      font-size: 0.95em;
+    }
+    
+    .btn-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: #f0f2f5;
+      border: none;
+      font-size: 1.2em;
+      color: #1c1e21;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .btn-close:hover {
+      background: #e4e6eb;
+    }
+    
+    .btn-close:active {
+      transform: scale(0.9);
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Team Work Manager</h2>
+    
+    <div class="card">
+      <div class="month-selector">
+        <select class="month-dropdown" id="monthSelect" onchange="changeMonth()">
+          <option value="0">January</option>
+          <option value="1">February</option>
+          <option value="2">March</option>
+          <option value="3">April</option>
+          <option value="4">May</option>
+          <option value="5">June</option>
+          <option value="6">July</option>
+          <option value="7">August</option>
+          <option value="8">September</option>
+          <option value="9">October</option>
+          <option value="10">November</option>
+          <option value="11">December</option>
+        </select>
+        <div class="year-controls">
+          <button class="year-btn" onclick="changeYear(-1)">‹</button>
+          <span class="current-year" id="currentYear">2025</span>
+          <button class="year-btn" onclick="changeYear(1)">›</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="week-controls">
+        <button class="nav-btn" id="prevWeekBtn" onclick="changeWeek(-1)">‹ Prev</button>
+        <div class="week-info-box">
+          <div class="week-title" id="weekInfo">Week 1 of November 2025</div>
+          <div class="week-dates" id="weekDates"></div>
+        </div>
+        <button class="nav-btn" id="nextWeekBtn" onclick="changeWeek(1)">Next ›</button>
+      </div>
+    </div>
+
+    <div class="section-title">Daily Rotating Tasks</div>
+    <ul class="task-list" id="teamList"></ul>
+    
+    <div class="section-title" style="margin-top: 32px;">Basin Cleaning Schedule</div>
+    <div class="card">
+      <div class="basin-grid" id="basinSchedule"></div>
+    </div>
+    
+    <div class="profile-modal" id="profileCard">
+      <button class="btn-close" onclick="closeProfile()">×</button>
+      <div class="profile-header" id="profileName"></div>
+      <div class="profile-label">This week's work:</div>
+      <div id="categoryChip"></div>
+      <div class="schedule-section">
+        <div class="schedule-title">Monthly Schedule</div>
+        <div id="scheduleList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const teamMembers = [
+      { name: "PREM MANDAL", startOffset: 0 },
+      { name: "KESHAV KUMAR", startOffset: 1 },
+      { name: "SUMIT KUMAR", startOffset: 2 },
+      { name: "SANJIT KUMAR", startOffset: 3 },
+      { name: "UTTAM MANDAL", startOffset: 4 }
+    ];
+
+    // Basin rotation pattern: UTTAM, SANJIT, SUMIT, PREM, KESHAV (repeats)
+    const basinRotationPattern = [
+      "UTTAM MANDAL",
+      "SANJIT KUMAR",
+      "SUMIT KUMAR",
+      "PREM MANDAL",
+      "KESHAV KUMAR"
+    ];
+
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const allWorks = ["पोछा लगाना", "झाड़ू लगाना", "सब्जी लाना", "पानी लाना", "कचरा फेंकना"];
+
+    let currentWeekIndex = 0;
+    let currentYear = 2025;
+    let currentMonth = 10;
+    
+    // Use actual current date - this will automatically change each day
+    let todayDate = new Date();
+
+    function getWeeksInMonth(year, month) {
+      const weeks = [];
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      
+      let startDate = new Date(firstDay);
+      startDate.setDate(startDate.getDate() - startDate.getDay());
+      
+      let currentDate = new Date(startDate);
+      let weekNumber = 1;
+      
+      while (currentDate <= lastDay || weekNumber === 1) {
+        const weekStart = new Date(currentDate);
+        const weekEnd = new Date(currentDate);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        
+        if (weekStart.getMonth() > month && weekNumber > 1) break;
+        
+        weeks.push({
+          weekNumber: weekNumber,
+          startDate: new Date(weekStart),
+          endDate: new Date(weekEnd),
+          dateRange: formatDateRange(weekStart, weekEnd)
+        });
+        
+        currentDate.setDate(currentDate.getDate() + 7);
+        weekNumber++;
+      }
+      
+      return weeks;
+    }
+
+    function formatDateRange(start, end) {
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      
+      if (start.getMonth() === end.getMonth()) {
+        return `${months[start.getMonth()]} ${start.getDate()}-${end.getDate()}`;
+      } else {
+        return `${months[start.getMonth()]} ${start.getDate()} - ${months[end.getMonth()]} ${end.getDate()}`;
+      }
+    }
+
+    function getMonthName(monthIndex) {
+      const months = ["January", "February", "March", "April", "May", "June",
+                     "July", "August", "September", "October", "November", "December"];
+      return months[monthIndex];
+    }
+
+    function getCurrentWeekIndex(year, month, today) {
+      const weeks = getWeeksInMonth(year, month);
+      for (let i = 0; i < weeks.length; i++) {
+        const week = weeks[i];
+        if (today >= week.startDate && today <= week.endDate) return i;
+      }
+      return 0;
+    }
+
+    function getAbsoluteWeekNumber(year, month, weekIndex) {
+      const referenceDate = new Date(2025, 10, 9);
+      const weeks = getWeeksInMonth(year, month);
+      const currentWeekStart = weeks[weekIndex]?.startDate;
+      
+      if (!currentWeekStart) return 0;
+      
+      const timeDiff = currentWeekStart.getTime() - referenceDate.getTime();
+      const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+      return Math.floor(daysDiff / 7);
+    }
+
+    function getWorkForMemberWeek(memberIndex, weekIndex) {
+      const member = teamMembers[memberIndex];
+      const absoluteWeek = getAbsoluteWeekNumber(currentYear, currentMonth, weekIndex);
+      const workIndex = (member.startOffset + absoluteWeek) % allWorks.length;
+      return allWorks[workIndex];
+    }
+
+    function getCurrentWeeks() {
+      return getWeeksInMonth(currentYear, currentMonth);
+    }
+
+    // Get basin cleaner for a specific date
+    function getBasinCleanerForDate(date) {
+      // Calculate days since reference date (Nov 9, 2025 = Sunday = UTTAM)
+      const referenceDate = new Date(2025, 10, 9);
+      const timeDiff = date.getTime() - referenceDate.getTime();
+      const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+      
+      // Get the index in rotation (modulo 5 for continuous rotation)
+      const rotationIndex = daysDiff % basinRotationPattern.length;
+      
+      // Handle negative days (dates before reference)
+      const adjustedIndex = rotationIndex >= 0 ? rotationIndex : (basinRotationPattern.length + rotationIndex);
+      
+      return basinRotationPattern[adjustedIndex];
+    }
+
+    function renderBasinSchedule() {
+      const basinScheduleEl = document.getElementById('basinSchedule');
+      basinScheduleEl.innerHTML = '';
+      
+      const weeks = getCurrentWeeks();
+      const currentWeek = weeks[currentWeekIndex];
+      if (!currentWeek) return;
+      
+      // Get the start date of the current week (Sunday)
+      const weekStartDate = new Date(currentWeek.startDate);
+      
+      for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+        const currentDate = new Date(weekStartDate);
+        currentDate.setDate(weekStartDate.getDate() + dayIndex);
+        
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'basin-day';
+        
+        // Check if this date matches today's date (compare date strings to ignore time)
+        const isToday = currentDate.toDateString() === todayDate.toDateString();
+        if (isToday) {
+          dayDiv.classList.add('today');
+        }
+        
+        // Get the correct basin cleaner for this specific date
+        const basinCleaner = getBasinCleanerForDate(currentDate);
+        
+        dayDiv.innerHTML = `
+          <div class="basin-day-name">${dayNames[dayIndex]}</div>
+          <div class="basin-member">${basinCleaner}</div>
+        `;
+        
+        basinScheduleEl.appendChild(dayDiv);
+      }
+    }
+
+    function changeMonth() {
+      currentMonth = parseInt(document.getElementById('monthSelect').value);
+      currentWeekIndex = 0;
+      updateDisplay();
+    }
+
+    function changeYear(direction) {
+      currentYear += direction;
+      currentWeekIndex = 0;
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      document.getElementById('currentYear').textContent = currentYear;
+      document.getElementById('monthSelect').value = currentMonth;
+      updateWeekDisplay();
+      renderBasinSchedule();
+    }
+
+    function updateWeekDisplay() {
+      const weeks = getCurrentWeeks();
+      const currentWeek = weeks[currentWeekIndex];
+      
+      if (currentWeek) {
+        const weekInfoText = `Week ${currentWeek.weekNumber} of ${getMonthName(currentMonth)} ${currentYear}`;
+        const weekInfoEl = document.getElementById('weekInfo');
+        
+        const isCurrentWeek = todayDate >= currentWeek.startDate && todayDate <= currentWeek.endDate &&
+                              todayDate.getMonth() === currentMonth && todayDate.getFullYear() === currentYear;
+        
+        weekInfoEl.innerHTML = isCurrentWeek ? 
+          weekInfoText + '<span class="badge-current">Current</span>' : weekInfoText;
+        
+        document.getElementById('weekDates').textContent = currentWeek.dateRange;
+      }
+      
+      document.getElementById('prevWeekBtn').disabled = currentWeekIndex === 0;
+      document.getElementById('nextWeekBtn').disabled = currentWeekIndex >= weeks.length - 1;
+      
+      renderTeamList();
+    }
+
+    function changeWeek(direction) {
+      const weeks = getCurrentWeeks();
+      const newIndex = currentWeekIndex + direction;
+      
+      if (newIndex >= 0 && newIndex < weeks.length) {
+        currentWeekIndex = newIndex;
+        updateDisplay();
+      }
+    }
+
+    function renderTeamList() {
+      const teamListEl = document.getElementById('teamList');
+      teamListEl.innerHTML = '';
+      
+      teamMembers.forEach((member, idx) => {
+        const li = document.createElement('li');
+        li.className = 'task-item';
+        const work = getWorkForMemberWeek(idx, currentWeekIndex);
+        
+        li.innerHTML = `
+          <span class="member-name">${member.name}</span>
+          <span class="work-tag">${work}</span>
+        `;
+        li.onclick = () => showProfile(idx);
+        teamListEl.appendChild(li);
+      });
+    }
+
+    function showProfile(memberIndex) {
+      const member = teamMembers[memberIndex];
+      const currentWork = getWorkForMemberWeek(memberIndex, currentWeekIndex);
+      const weeks = getCurrentWeeks();
+      
+      document.getElementById('profileName').textContent = member.name;
+      document.getElementById('categoryChip').innerHTML = 
+        `<span class="work-chip">${currentWork}</span>`;
+      
+      const scheduleList = document.getElementById('scheduleList');
+      scheduleList.innerHTML = '';
+      
+      weeks.forEach((week, weekIdx) => {
+        const work = getWorkForMemberWeek(memberIndex, weekIdx);
+        const scheduleDiv = document.createElement('div');
+        scheduleDiv.className = 'schedule-item';
+        if (weekIdx === currentWeekIndex) scheduleDiv.classList.add('current-week');
+        
+        scheduleDiv.innerHTML = `
+          <div class="schedule-week-title">Week ${week.weekNumber} (${week.dateRange})</div>
+          <div class="schedule-work-value">${work}</div>
+        `;
+        scheduleList.appendChild(scheduleDiv);
+      });
+      
+      document.getElementById('profileCard').classList.add('active');
+      setTimeout(() => {
+        document.getElementById('profileCard').scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100);
+    }
+
+    function closeProfile() {
+      document.getElementById('profileCard').classList.remove('active');
+    }
+
+    function initialize() {
+      // Use actual current date
+      currentYear = todayDate.getFullYear();
+      currentMonth = todayDate.getMonth();
+      currentWeekIndex = getCurrentWeekIndex(currentYear, currentMonth, todayDate);
+      updateDisplay();
+    }
+
+    initialize();
+  </script>
+</body>
+</html>
