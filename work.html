@@ -1,94 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Team Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Work Manage | Rotation Manager</title>
     
-    <!-- Tailwind CSS -->
+    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- jsPDF + AutoTable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        cyber: {
+                            dark: '#09090b',
+                            card: '#18181b',
+                            primary: '#8b5cf6',
+                            accent: '#06b6d4'
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 2.5s linear infinite',
+                        'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-1000px 0' },
+                            '100%': { backgroundPosition: '1000px 0' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: 0 },
+                            '100%': { transform: 'translateY(0)', opacity: 1 }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        /* Base Aesthetics */
+        body {
+            background-color: #050507;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Cyber Grid Background */
+        .bg-grid {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+
+        /* Enhanced Glassmorphism */
+        .glass-panel {
+            background: rgba(20, 20, 25, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-panel:hover {
+            background: rgba(30, 30, 40, 0.7);
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+        }
+
+        /* Neon Text Utilities */
+        .text-glow {
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        }
         
+        .text-gradient {
+            background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { 
+            background: #3f3f46; 
+            border-radius: 10px; 
+        }
+        ::-webkit-scrollbar-thumb:hover { background: #71717a; }
 
         /* Animations */
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
-        
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); border-color: rgba(99, 102, 241, 0.6); }
-            50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.5); border-color: rgba(99, 102, 241, 1); }
-        }
-        .active-cleaner {
-            animation: pulse-glow 2s infinite;
-            background: linear-gradient(145deg, rgba(79, 70, 229, 0.2), rgba(67, 56, 202, 0.1));
-        }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
 
-        /* Loading Spinner */
-        .spinner {
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top: 3px solid #fff;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
+        /* Interactive Elements */
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn-glow::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-20deg);
+            transition: 0.5s;
+        }
+        .btn-glow:hover::after { left: 100%; }
+        .btn-glow:hover {
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+            transform: translateY(-1px);
+        }
     </style>
 </head>
-<body class="min-h-screen w-full relative bg-gray-900 text-white overflow-x-hidden p-4 sm:p-6">
+<body class="min-h-screen selection:bg-purple-500/30 selection:text-purple-200">
 
-    <!-- Background -->
-    <div class="fixed inset-0 z-0">
-        <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop" alt="Background" class="w-full h-full object-cover opacity-40">
-        <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/90 via-purple-900/80 to-black/80 backdrop-blur-sm"></div>
+    <!-- Ambient Background -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute inset-0 bg-grid"></div>
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-[100px] animate-float"></div>
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px] animate-float" style="animation-delay: -2s;"></div>
     </div>
 
-    <div class="relative z-10 max-w-5xl mx-auto">
-        
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 animate-slide-up">
-            <div class="flex items-center space-x-3 mb-4 md:mb-0">
-                <div class="p-3 bg-indigo-500/20 rounded-2xl border border-indigo-500/30 shadow-lg shadow-indigo-500/10">
-                    <i data-lucide="users" class="w-8 h-8 text-indigo-300"></i>
+    <!-- Main Container -->
+    <div class="relative z-10 max-w-6xl mx-auto px-4 py-6 md:py-10 flex flex-col gap-8">
+
+        <!-- Header Section -->
+        <header class="flex flex-col md:flex-row justify-between items-center gap-6 animate-slide-up">
+            <div class="flex items-center gap-4">
+                <div class="relative group">
+                    <div class="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl blur opacity-40 group-hover:opacity-70 transition duration-500"></div>
+                    <div class="relative bg-black/40 p-3 rounded-xl border border-white/10 backdrop-blur-sm">
+                        <i data-lucide="cpu" class="w-8 h-8 text-purple-400"></i>
+                    </div>
                 </div>
                 <div>
-                    <div class="text-xs font-semibold text-indigo-300 uppercase tracking-widest mb-0.5">Rotation Manager</div>
-                    <h1 class="text-2xl md:text-3xl font-bold tracking-wide text-white">Team Work Schedule</h1>
+                    <h1 class="font-display text-3xl md:text-4xl font-bold text-white tracking-tight">Work <span class="text-purple-500">Manage</span></h1>
+                    <div class="flex items-center gap-2 text-xs font-medium text-gray-400 uppercase tracking-widest">
+                        <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)] animate-pulse"></span>
+                        System Online
+                    </div>
                 </div>
             </div>
 
-            <button id="generatePdfBtn" class="flex items-center gap-2 px-4 py-2.5 bg-white text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-bold shadow-lg transition-all transform hover:scale-105">
-                <i data-lucide="file-down" class="w-4 h-4"></i> Export Schedule
+            <button id="generatePdfBtn" class="btn-glow group flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-xl transition-all text-sm font-medium">
+                <i data-lucide="download" class="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform"></i>
+                <span>Export Report</span>
             </button>
-        </div>
+        </header>
 
-        <!-- Controls Card -->
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-4 md:p-6 shadow-xl mb-8 animate-slide-up" style="animation-delay: 0.1s;">
-            <div class="flex flex-col md:flex-row gap-4 justify-between items-center">
-                
-                <!-- Month Selector -->
-                <div class="relative w-full md:w-64">
-                    <select id="monthSelect" class="w-full bg-black/20 text-white border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer font-medium">
+        <!-- Controls & Navigation -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 animate-slide-up delay-100">
+            
+            <!-- Month/Year Selector -->
+            <div class="md:col-span-8 glass-panel rounded-2xl p-1.5 flex flex-col sm:flex-row gap-2">
+                <div class="relative flex-1">
+                    <select id="monthSelect" class="w-full h-full bg-transparent text-white font-medium text-sm px-4 py-3 rounded-xl border border-transparent hover:bg-white/5 focus:bg-white/10 focus:border-purple-500/50 outline-none appearance-none cursor-pointer transition-colors">
                         <option value="0" class="bg-gray-900">January</option>
                         <option value="1" class="bg-gray-900">February</option>
                         <option value="2" class="bg-gray-900">March</option>
@@ -102,521 +194,589 @@
                         <option value="10" class="bg-gray-900">November</option>
                         <option value="11" class="bg-gray-900">December</option>
                     </select>
-                    <i data-lucide="calendar" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+                    <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none"></i>
                 </div>
-
-                <!-- Year Controls -->
-                <div class="flex items-center bg-black/20 rounded-xl p-1">
-                    <button onclick="manager.changeYear(-1)" class="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-300 hover:text-white">
-                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                    </button>
-                    <span id="currentYear" class="px-4 font-bold text-white min-w-[80px] text-center">2025</span>
-                    <button onclick="manager.changeYear(1)" class="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-300 hover:text-white">
-                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                    </button>
+                
+                <div class="flex items-center bg-black/20 rounded-xl border border-white/5 px-2">
+                    <button onclick="app.changeYear(-1)" class="p-2 hover:text-purple-400 transition-colors"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                    <span id="currentYear" class="px-4 font-display font-bold text-lg tabular-nums">2025</span>
+                    <button onclick="app.changeYear(1)" class="p-2 hover:text-purple-400 transition-colors"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                 </div>
-
             </div>
 
-            <!-- Divider -->
-            <div class="h-px bg-white/10 my-6"></div>
-
             <!-- Week Navigation -->
-            <div class="flex items-center justify-between bg-indigo-500/10 rounded-2xl p-2 border border-indigo-500/20">
-                <button id="prevWeekBtn" onclick="manager.changeWeek(-1)" class="p-3 hover:bg-indigo-500/20 rounded-xl transition-colors text-indigo-200 disabled:opacity-30 disabled:cursor-not-allowed">
+            <div class="md:col-span-4 glass-panel rounded-2xl p-4 flex items-center justify-between">
+                <button id="prevWeekBtn" onclick="app.changeWeek(-1)" class="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed">
                     <i data-lucide="arrow-left" class="w-5 h-5"></i>
                 </button>
                 
                 <div class="text-center">
-                    <div id="weekInfo" class="text-sm md:text-base font-bold text-white flex items-center justify-center gap-2">
-                        Week 1
-                    </div>
-                    <div id="weekDates" class="text-xs text-indigo-300 mt-0.5 font-mono">...</div>
+                    <div id="weekInfo" class="font-display font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">Week 1</div>
+                    <div id="weekDates" class="text-xs text-purple-400/80 font-mono mt-0.5 tracking-tight">Loading...</div>
                 </div>
 
-                <button id="nextWeekBtn" onclick="manager.changeWeek(1)" class="p-3 hover:bg-indigo-500/20 rounded-xl transition-colors text-indigo-200 disabled:opacity-30 disabled:cursor-not-allowed">
+                <button id="nextWeekBtn" onclick="app.changeWeek(1)" class="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed">
                     <i data-lucide="arrow-right" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-8">
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Basin Cleaning Chart (Full Width) -->
-            <div class="animate-slide-up" style="animation-delay: 0.2s;">
-                <div class="flex items-center gap-3 mb-4 px-2">
-                    <div class="p-2 bg-blue-500/20 rounded-lg">
-                        <i data-lucide="droplets" class="w-5 h-5 text-blue-400"></i>
+            <!-- Rotation Visualizer -->
+            <div class="lg:col-span-3 animate-slide-up delay-200">
+                <div class="glass-panel rounded-3xl p-6 relative overflow-hidden group">
+                    <!-- Glow Effect behind title -->
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50"></div>
+                    
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="font-display text-xl font-bold flex items-center gap-2">
+                            <i data-lucide="orbit" class="w-5 h-5 text-blue-400"></i>
+                            Basin Rotation Cycle
+                        </h2>
+                        <span class="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold uppercase tracking-wider border border-blue-500/20">
+                            Linear Sequence
+                        </span>
                     </div>
-                    <div>
-                        <h2 class="text-xl font-bold text-white">Basin Cleaning Rotation</h2>
-                        <p class="text-xs text-blue-300/80">Current Cycle Status</p>
-                    </div>
-                </div>
 
-                <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl overflow-x-auto custom-scrollbar">
-                    <div class="min-w-[600px] flex justify-between items-center relative py-4" id="basinChart">
-                        <!-- Chart injected here -->
+                    <div class="overflow-x-auto pb-4 custom-scrollbar">
+                        <div id="basinChart" class="flex items-center min-w-max px-4 gap-4">
+                            <!-- JS Injects here -->
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Daily Rotating Tasks -->
-            <div class="animate-slide-up" style="animation-delay: 0.3s;">
-                <div class="flex items-center gap-3 mb-4 px-2">
-                    <div class="p-2 bg-emerald-500/20 rounded-lg">
-                        <i data-lucide="refresh-ccw" class="w-5 h-5 text-emerald-400"></i>
-                    </div>
-                    <h2 class="text-xl font-bold text-white">Weekly Duties</h2>
-                </div>
-
-                <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-4 shadow-xl">
-                    <div id="teamList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Items injected via JS -->
-                    </div>
+            <!-- Roster Grid -->
+            <div class="lg:col-span-3 animate-slide-up delay-300">
+                <h2 class="font-display text-xl font-bold flex items-center gap-2 mb-4 pl-2">
+                    <i data-lucide="list-checks" class="w-5 h-5 text-purple-400"></i>
+                    Duty Roster
+                </h2>
+                <div id="teamList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- JS Injects here -->
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- Member Profile Modal -->
-    <div id="profileModal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
-        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="manager.closeProfile()"></div>
-        <div class="relative bg-gray-900 border border-white/10 p-6 rounded-3xl shadow-2xl max-w-md w-full m-4 animate-slide-up">
-            <button onclick="manager.closeProfile()" class="absolute top-4 right-4 p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10 transition-colors">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-
-            <div class="flex flex-col items-center mb-6">
-                <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-2xl font-bold text-white mb-3 shadow-lg">
-                    <span id="profileInitial">A</span>
-                </div>
-                <h3 id="profileName" class="text-xl font-bold text-white">Name</h3>
-                <p class="text-indigo-300 text-sm">Schedule Details</p>
+    <!-- Modal Backdrop -->
+    <div id="profileModal" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-4 sm:p-6">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-xl transition-opacity duration-300" onclick="app.closeProfile()"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative w-full max-w-md bg-[#101014] border border-white/10 rounded-3xl shadow-2xl transform transition-all duration-300 scale-95 opacity-0 translate-y-10" id="modalContent">
+            <!-- Header pattern -->
+            <div class="h-24 bg-gradient-to-br from-purple-900/50 to-blue-900/50 rounded-t-3xl relative overflow-hidden">
+                <div class="absolute inset-0 bg-grid opacity-30"></div>
+                <button onclick="app.closeProfile()" class="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white/70 hover:text-white transition-all backdrop-blur-sm">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
             </div>
 
-            <div class="bg-white/5 rounded-2xl p-4 mb-6 border border-white/5">
-                <div class="text-xs text-gray-400 uppercase tracking-widest mb-2 text-center">Current Duty</div>
-                <div id="categoryChip" class="text-center">
-                    <!-- Chip injected here -->
+            <!-- Avatar & Info -->
+            <div class="px-6 pb-6 -mt-12">
+                <div class="relative w-24 h-24 mx-auto mb-4">
+                    <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl rotate-6 opacity-50 blur-md"></div>
+                    <div class="relative w-full h-full bg-[#18181b] rounded-2xl border-2 border-white/10 flex items-center justify-center shadow-xl">
+                        <span id="profileInitial" class="font-display text-4xl font-bold text-white">A</span>
+                    </div>
                 </div>
-            </div>
 
-            <div>
-                <h4 class="text-sm font-bold text-gray-300 mb-3 px-1">Upcoming Rotation</h4>
-                <div id="scheduleList" class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
-                    <!-- Future schedule -->
+                <div class="text-center mb-6">
+                    <h3 id="profileName" class="font-display text-2xl font-bold text-white">Name</h3>
+                    <p class="text-gray-400 text-sm">Core Team Member</p>
+                </div>
+
+                <div class="glass-panel p-4 rounded-xl mb-6 text-center border-purple-500/20 bg-purple-500/5">
+                    <div class="text-xs text-purple-300 uppercase tracking-widest font-semibold mb-2">Current Assignment</div>
+                    <div id="categoryChip" class="flex justify-center"></div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2 text-sm font-semibold text-gray-400 px-1">
+                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                        <span>Upcoming Schedule</span>
+                    </div>
+                    <div id="scheduleList" class="max-h-48 overflow-y-auto pr-1 space-y-2 custom-scrollbar">
+                        <!-- Schedule items -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Toast Container -->
-    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <!-- Toast Notification -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
 
     <script>
-        // --- Config Data ---
-        const teamMembers = [
-            { name: "PREM MANDAL", startOffset: 0 },
-            { name: "KESHAV KUMAR", startOffset: 1 },
-            { name: "SUMIT KUMAR", startOffset: 2 },
-            { name: "SANJIT KUMAR", startOffset: 3 },
-            { name: "UTTAM MANDAL", startOffset: 4 }
-        ];
-
-        const basinRotationPattern = [
-            "KESHAV KUMAR", "UTTAM MANDAL", "SANJIT KUMAR", "SUMIT KUMAR", "PREM MANDAL"
-        ];
-
-        const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        const allWorks = ["पोछा लगाना", "झाड़ू लगाना", "सब्जी लाना", "पानी लाना", "कचरा फेंकना"];
-        
-        const workTranslations = {
-            "पोछा लगाना": "Mopping (Pocha)",
-            "झाड़ू लगाना": "Sweeping (Jhadu)",
-            "सब्जी लाना": "Vegetables (Sabji)",
-            "पानी लाना": "Water (Paani)",
-            "कचरा फेंकना": "Garbage (Kachara)"
+        /* --- CONFIGURATION --- */
+        const CONFIG = {
+            members: [
+                { name: "PREM MANDAL", startOffset: 0 },
+                { name: "KESHAV KUMAR", startOffset: 1 },
+                { name: "SUMIT KUMAR", startOffset: 2 },
+                { name: "SANJIT KUMAR", startOffset: 3 },
+                { name: "UTTAM MANDAL", startOffset: 4 }
+            ],
+            basinPattern: [
+                "KESHAV KUMAR", "UTTAM MANDAL", "SANJIT KUMAR", "SUMIT KUMAR", "PREM MANDAL"
+            ],
+            works: ["पोछा लगाना", "झाड़ू लगाना", "सब्जी लाना", "पानी लाना", "कचरा फेंकना"],
+            translations: {
+                "पोछा लगाना": "Mopping",
+                "झाड़ू लगाना": "Sweeping",
+                "सब्जी लाना": "Vegetables",
+                "पानी लाना": "Water",
+                "कचरा फेंकना": "Garbage"
+            },
+            styles: {
+                "पोछा लगाना": { 
+                    gradient: "from-blue-500/20 to-blue-600/5", 
+                    text: "text-blue-300", 
+                    border: "border-blue-500/30",
+                    icon: "droplets"
+                },
+                "झाड़ू लगाना": { 
+                    gradient: "from-orange-500/20 to-orange-600/5", 
+                    text: "text-orange-300", 
+                    border: "border-orange-500/30",
+                    icon: "brush"
+                },
+                "सब्जी लाना": { 
+                    gradient: "from-emerald-500/20 to-emerald-600/5", 
+                    text: "text-emerald-300", 
+                    border: "border-emerald-500/30",
+                    icon: "carrot"
+                },
+                "पानी लाना": { 
+                    gradient: "from-cyan-500/20 to-cyan-600/5", 
+                    text: "text-cyan-300", 
+                    border: "border-cyan-500/30",
+                    icon: "waves"
+                },
+                "कचरा फेंकना": { 
+                    gradient: "from-rose-500/20 to-rose-600/5", 
+                    text: "text-rose-300", 
+                    border: "border-rose-500/30",
+                    icon: "trash-2"
+                }
+            }
         };
 
-        const workColors = {
-            "पोछा लगाना": "bg-blue-500/20 text-blue-300 border-blue-500/30",
-            "झाड़ू लगाना": "bg-orange-500/20 text-orange-300 border-orange-500/30",
-            "सब्जी लाना": "bg-green-500/20 text-green-300 border-green-500/30",
-            "पानी लाना": "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
-            "कचरा फेंकना": "bg-red-500/20 text-red-300 border-red-500/30"
-        };
-
-        // --- Toast System ---
-        const addToast = (message) => {
-            const container = document.getElementById('toastContainer');
-            const el = document.createElement('div');
-            el.className = `pointer-events-auto bg-indigo-600/90 backdrop-blur-md text-white px-4 py-3 rounded-xl shadow-xl border border-white/10 flex items-center gap-3 animate-slide-up max-w-xs`;
-            el.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 shrink-0"></i><span class="text-sm font-medium">${message}</span>`;
-            container.appendChild(el);
-            lucide.createIcons();
-            setTimeout(() => { el.style.opacity='0'; el.style.transform='translateY(10px)'; setTimeout(()=>el.remove(),300); }, 3000);
-        };
-
-        class TeamManager {
+        /* --- LOGIC CORE --- */
+        class App {
             constructor() {
-                // Normalize today's date to midnight to prevent time comparison errors
-                this.todayDate = new Date();
-                this.todayDate.setHours(0, 0, 0, 0);
-                
-                this.currentWeekIndex = 0;
-                this.currentYear = this.todayDate.getFullYear();
-                this.currentMonth = this.todayDate.getMonth();
+                this.state = {
+                    date: new Date(),
+                    viewIndex: 0,
+                    year: new Date().getFullYear(),
+                    month: new Date().getMonth()
+                };
+                this.state.date.setHours(0, 0, 0, 0);
                 
                 this.init();
             }
 
             init() {
-                this.els = {
-                    monthSelect: document.getElementById('monthSelect'),
-                    currentYear: document.getElementById('currentYear'),
+                // Initial calculation for current week
+                this.state.viewIndex = this.getCurrentWeekIndex();
+                
+                // Bind UI
+                this.ui = {
+                    month: document.getElementById('monthSelect'),
+                    year: document.getElementById('currentYear'),
                     weekInfo: document.getElementById('weekInfo'),
                     weekDates: document.getElementById('weekDates'),
-                    prevWeekBtn: document.getElementById('prevWeekBtn'),
-                    nextWeekBtn: document.getElementById('nextWeekBtn'),
+                    prevBtn: document.getElementById('prevWeekBtn'),
+                    nextBtn: document.getElementById('nextWeekBtn'),
                     teamList: document.getElementById('teamList'),
                     basinChart: document.getElementById('basinChart'),
-                    profileModal: document.getElementById('profileModal'),
-                    generatePdfBtn: document.getElementById('generatePdfBtn')
+                    modal: document.getElementById('profileModal'),
+                    modalContent: document.getElementById('modalContent'),
+                    exportBtn: document.getElementById('generatePdfBtn')
                 };
 
-                this.els.monthSelect.addEventListener('change', () => this.changeMonth());
-                this.els.generatePdfBtn.addEventListener('click', () => this.generatePDF());
+                // Event Listeners
+                this.ui.month.addEventListener('change', (e) => {
+                    this.state.month = parseInt(e.target.value);
+                    this.state.viewIndex = 0;
+                    this.render();
+                    this.toast('Month updated', 'info');
+                });
 
-                // Force calculate correct week on init
-                this.currentWeekIndex = this.getCurrentWeekIndex(this.currentYear, this.currentMonth, this.todayDate);
-                this.updateDisplay();
+                this.ui.exportBtn.addEventListener('click', () => this.generatePDF());
+                
+                this.render();
             }
 
-            // --- Core Logic ---
+            /* --- HELPERS --- */
             getWeeksInMonth(year, month) {
                 const weeks = [];
                 const firstDay = new Date(year, month, 1);
                 const lastDay = new Date(year, month + 1, 0);
                 
-                let startDate = new Date(firstDay);
-                startDate.setDate(startDate.getDate() - startDate.getDay()); 
+                let start = new Date(firstDay);
+                start.setDate(start.getDate() - start.getDay()); // Get Sunday
                 
-                let currentDate = new Date(startDate);
-                let weekNumber = 1;
+                let current = new Date(start);
+                let num = 1;
                 
-                while (currentDate <= lastDay || weekNumber === 1) {
-                    const weekStart = new Date(currentDate);
-                    const weekEnd = new Date(currentDate);
-                    weekEnd.setDate(weekEnd.getDate() + 6);
+                while (current <= lastDay || num === 1) {
+                    const wStart = new Date(current);
+                    const wEnd = new Date(current);
+                    wEnd.setDate(wEnd.getDate() + 6);
                     
-                    if (weekStart.getMonth() > month && weekNumber > 1 && weekStart.getFullYear() >= year) break;
+                    if (wStart.getMonth() > month && num > 1 && wStart.getFullYear() >= year) break;
                     
                     weeks.push({
-                        weekNumber: weekNumber,
-                        startDate: new Date(weekStart),
-                        endDate: new Date(weekEnd),
-                        dateRange: this.formatDateRange(weekStart, weekEnd)
+                        id: num,
+                        start: new Date(wStart),
+                        end: new Date(wEnd),
+                        label: this.formatDateRange(wStart, wEnd)
                     });
                     
-                    currentDate.setDate(currentDate.getDate() + 7);
-                    weekNumber++;
+                    current.setDate(current.getDate() + 7);
+                    num++;
                 }
                 return weeks;
             }
 
             formatDateRange(start, end) {
-                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                return start.getMonth() === end.getMonth() 
-                    ? `${months[start.getMonth()]} ${start.getDate()} - ${end.getDate()}`
-                    : `${months[start.getMonth()]} ${start.getDate()} - ${months[end.getMonth()]} ${end.getDate()}`;
-            }
-
-            getCurrentWeekIndex(year, month, today) {
-                const weeks = this.getWeeksInMonth(year, month);
-                for (let i = 0; i < weeks.length; i++) {
-                    if (today.getTime() >= weeks[i].startDate.getTime() && today.getTime() <= weeks[i].endDate.getTime()) {
-                        return i;
-                    }
+                const opts = { month: 'short', day: 'numeric' };
+                if (start.getMonth() === end.getMonth()) {
+                    return `${start.toLocaleDateString('en-US', { month: 'short' })} ${start.getDate()} - ${end.getDate()}`;
                 }
-                return 0; 
+                return `${start.toLocaleDateString('en-US', opts)} - ${end.toLocaleDateString('en-US', opts)}`;
             }
 
-            getAbsoluteWeekNumber(year, month, weekIndex) {
-                const referenceDate = new Date(2025, 10, 9);
-                const weeks = this.getWeeksInMonth(year, month);
-                const currentWeekStart = weeks[weekIndex]?.startDate;
-                if (!currentWeekStart) return 0;
-                const timeDiff = currentWeekStart.getTime() - referenceDate.getTime();
-                return Math.floor(Math.floor(timeDiff / (1000 * 60 * 60 * 24)) / 7);
+            getCurrentWeekIndex() {
+                const weeks = this.getWeeksInMonth(this.state.year, this.state.month);
+                const now = this.state.date.getTime();
+                const idx = weeks.findIndex(w => now >= w.start.getTime() && now <= w.end.getTime());
+                return idx === -1 ? 0 : idx;
             }
 
-            getWorkForMemberWeek(memberIndex, weekIndex) {
-                const member = teamMembers[memberIndex];
-                const absWeek = this.getAbsoluteWeekNumber(this.currentYear, this.currentMonth, weekIndex);
-                const workIndex = ((member.startOffset + absWeek) % allWorks.length + allWorks.length) % allWorks.length;
-                return allWorks[workIndex];
+            getAbsoluteWeekDiff(weekIdx) {
+                // Reference: Nov 9, 2025 (Week 2 of Nov roughly)
+                const ref = new Date(2025, 10, 9);
+                const weeks = this.getWeeksInMonth(this.state.year, this.state.month);
+                const target = weeks[weekIdx]?.start;
+                if (!target) return 0;
+                
+                const diffTime = target.getTime() - ref.getTime();
+                return Math.floor(Math.floor(diffTime / (1000 * 60 * 60 * 24)) / 7);
             }
 
-            getBasinCleanerForDate(date) {
-                const referenceDate = new Date(2025, 10, 9);
-                const timeDiff = date.getTime() - referenceDate.getTime();
-                const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-                const rotationIndex = ((daysDiff % basinRotationPattern.length) + basinRotationPattern.length) % basinRotationPattern.length;
-                return basinRotationPattern[rotationIndex];
+            getWork(memberIdx, weekIdx) {
+                const absWeek = this.getAbsoluteWeekDiff(weekIdx);
+                const workIdx = ((CONFIG.members[memberIdx].startOffset + absWeek) % CONFIG.works.length + CONFIG.works.length) % CONFIG.works.length;
+                return CONFIG.works[workIdx];
             }
 
-            // --- Interaction ---
-            changeMonth() {
-                this.currentMonth = parseInt(this.els.monthSelect.value);
-                this.currentWeekIndex = 0;
-                this.updateDisplay();
-            }
-
+            /* --- ACTIONS --- */
             changeYear(dir) {
-                this.currentYear += dir;
-                this.currentWeekIndex = 0;
-                this.updateDisplay();
+                this.state.year += dir;
+                this.state.viewIndex = 0;
+                this.render();
             }
 
             changeWeek(dir) {
-                const weeks = this.getWeeksInMonth(this.currentYear, this.currentMonth);
-                const newIndex = this.currentWeekIndex + dir;
-                if (newIndex >= 0 && newIndex < weeks.length) {
-                    this.currentWeekIndex = newIndex;
-                    this.updateDisplay();
+                const weeks = this.getWeeksInMonth(this.state.year, this.state.month);
+                const next = this.state.viewIndex + dir;
+                if (next >= 0 && next < weeks.length) {
+                    this.state.viewIndex = next;
+                    this.render();
                 }
             }
 
-            // --- Rendering ---
-            updateDisplay() {
-                this.els.currentYear.textContent = this.currentYear;
-                this.els.monthSelect.value = this.currentMonth;
+            /* --- RENDER --- */
+            render() {
+                // Sync Controls
+                this.ui.year.textContent = this.state.year;
+                this.ui.month.value = this.state.month;
+
+                const weeks = this.getWeeksInMonth(this.state.year, this.state.month);
+                const currentWeek = weeks[this.state.viewIndex];
+
+                // View Navigation State
+                this.ui.prevBtn.disabled = this.state.viewIndex === 0;
+                this.ui.nextBtn.disabled = this.state.viewIndex >= weeks.length - 1;
+
+                // Header Info
+                const isNow = this.state.date.getTime() >= currentWeek.start.getTime() && this.state.date.getTime() <= currentWeek.end.getTime();
+                this.ui.weekInfo.innerHTML = `
+                    Week ${currentWeek.id} 
+                    ${isNow ? '<span class="ml-2 text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded border border-green-500/30 align-middle">NOW</span>' : ''}
+                `;
+                this.ui.weekDates.textContent = currentWeek.label;
+
+                // Render Components
+                this.renderTeamList(currentWeek);
+                this.renderBasinChart();
                 
-                const weeks = this.getWeeksInMonth(this.currentYear, this.currentMonth);
-                this.els.prevWeekBtn.disabled = this.currentWeekIndex === 0;
-                this.els.nextWeekBtn.disabled = this.currentWeekIndex >= weeks.length - 1;
-
-                const currentWeek = weeks[this.currentWeekIndex];
-                if (currentWeek) {
-                    const monthName = this.els.monthSelect.options[this.currentMonth].text;
-                    const isCurrent = this.todayDate.getTime() >= currentWeek.startDate.getTime() && this.todayDate.getTime() <= currentWeek.endDate.getTime();
-                    
-                    this.els.weekInfo.innerHTML = `Week ${currentWeek.weekNumber} <span class="text-indigo-300 font-normal">of</span> ${monthName} ${isCurrent ? '<span class="ml-2 bg-emerald-500 text-[10px] px-2 py-0.5 rounded text-white font-bold uppercase tracking-wider shadow">Current</span>' : ''}`;
-                    this.els.weekDates.textContent = currentWeek.dateRange;
-                }
-
-                this.renderTeamList();
-                this.renderBasinRotationChart();
+                // Re-init icons
                 lucide.createIcons();
             }
 
             renderTeamList() {
-                this.els.teamList.innerHTML = '';
-                teamMembers.forEach((member, idx) => {
-                    const work = this.getWorkForMemberWeek(idx, this.currentWeekIndex);
-                    const colorClass = workColors[work] || "bg-gray-700 text-gray-300";
-                    
-                    const div = document.createElement('div');
-                    div.className = "flex flex-col justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-pointer group";
-                    div.onclick = () => this.showProfile(idx);
-                    
-                    div.innerHTML = `
-                        <div class="flex items-center gap-3 mb-3">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-sm font-bold text-white shadow-lg group-hover:scale-110 transition-transform">
-                                ${member.name.charAt(0)}
+                this.ui.teamList.innerHTML = '';
+                
+                CONFIG.members.forEach((member, idx) => {
+                    const work = this.getWork(idx, this.state.viewIndex);
+                    const style = CONFIG.styles[work];
+
+                    const card = document.createElement('div');
+                    card.className = `glass-panel p-5 rounded-2xl border-l-4 ${style.border.replace('border', 'border-l')} hover:bg-white/5 transition-all cursor-pointer group relative overflow-hidden`;
+                    card.onclick = () => this.openProfile(idx);
+
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between relative z-10">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-800 to-black border border-white/10 flex items-center justify-center font-display font-bold text-lg text-white shadow-lg group-hover:scale-105 transition-transform">
+                                    ${member.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-200 group-hover:text-white transition-colors">${member.name}</h3>
+                                    <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Team Member</p>
+                                </div>
                             </div>
-                            <span class="font-semibold text-gray-200">${member.name}</span>
                         </div>
-                        <div class="flex items-center justify-between mt-1">
-                            <span class="text-xs text-gray-400">Assigned Duty</span>
-                            <span class="px-3 py-1 rounded-lg text-xs font-bold border ${colorClass} tracking-wide">
-                                ${work}
-                            </span>
+                        
+                        <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-gray-400 font-medium">Assigned Duty</span>
+                            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r ${style.gradient} border ${style.border}">
+                                <i data-lucide="${style.icon}" class="w-3.5 h-3.5 ${style.text}"></i>
+                                <span class="text-xs font-bold ${style.text}">${work}</span>
+                            </div>
                         </div>
+                        
+                        <!-- Hover Glow -->
+                        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-gradient-to-r ${style.gradient} rounded-full blur-2xl opacity-0 group-hover:opacity-40 transition duration-500"></div>
                     `;
-                    this.els.teamList.appendChild(div);
+                    this.ui.teamList.appendChild(card);
                 });
             }
 
-            renderBasinRotationChart() {
-                this.els.basinChart.innerHTML = '';
+            renderBasinChart() {
+                this.ui.basinChart.innerHTML = '';
                 
-                basinRotationPattern.forEach((name, idx) => {
-                    const isNext = idx < basinRotationPattern.length - 1;
-
-                    const div = document.createElement('div');
-                    div.className = "flex flex-col items-center relative z-10";
+                CONFIG.basinPattern.forEach((name, idx) => {
+                    const isLast = idx === CONFIG.basinPattern.length - 1;
                     
-                    div.innerHTML = `
-                        <div class="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold text-white border-2 bg-gray-800 border-gray-700 shadow-lg transition-all duration-300 hover:bg-white/10 hover:border-white/20">
-                            ${name.charAt(0)}
+                    // Node
+                    const node = document.createElement('div');
+                    node.className = 'flex flex-col items-center relative group';
+                    node.innerHTML = `
+                        <div class="w-14 h-14 rounded-full bg-[#0a0a0a] border-2 border-blue-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.2)] group-hover:border-blue-400 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all z-10">
+                            <span class="font-display font-bold text-white">${name.charAt(0)}</span>
                         </div>
                         <div class="mt-3 text-center">
-                            <div class="text-xs font-bold text-gray-400">${name.split(' ')[0]}</div>
+                            <div class="text-xs font-bold text-gray-300 whitespace-nowrap">${name.split(' ')[0]}</div>
                         </div>
                     `;
-                    this.els.basinChart.appendChild(div);
+                    this.ui.basinChart.appendChild(node);
 
-                    // Arrow
-                    if (isNext) {
-                        const arrow = document.createElement('div');
-                        arrow.className = "flex-1 h-0.5 bg-white/10 mx-2 relative top-[-20px]";
-                        arrow.innerHTML = '<div class="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-white/30 rounded-full"></div>';
-                        this.els.basinChart.appendChild(arrow);
+                    // Connector
+                    if (!isLast) {
+                        const connector = document.createElement('div');
+                        connector.className = 'w-16 h-[2px] bg-blue-900/50 relative self-start mt-7 mx-2';
+                        connector.innerHTML = `<div class="absolute inset-0 bg-blue-500/50 w-1/2 animate-pulse"></div>`;
+                        this.ui.basinChart.appendChild(connector);
                     }
                 });
             }
 
-            // --- Profile Modal ---
-            showProfile(idx) {
-                const member = teamMembers[idx];
-                const currentWork = this.getWorkForMemberWeek(idx, this.currentWeekIndex);
-                const colorClass = workColors[currentWork];
+            /* --- MODAL --- */
+            openProfile(idx) {
+                const member = CONFIG.members[idx];
+                const currentWork = this.getWork(idx, this.state.viewIndex);
+                const style = CONFIG.styles[currentWork];
 
-                document.getElementById('profileInitial').textContent = member.name.charAt(0);
                 document.getElementById('profileName').textContent = member.name;
+                document.getElementById('profileInitial').textContent = member.name.charAt(0);
                 
+                // Chip
                 const chip = document.getElementById('categoryChip');
-                chip.innerHTML = `<span class="inline-block px-4 py-2 rounded-xl text-sm font-bold border ${colorClass}">${currentWork}</span>`;
+                chip.innerHTML = `
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r ${style.gradient} border ${style.border} shadow-lg">
+                        <i data-lucide="${style.icon}" class="w-5 h-5 ${style.text}"></i>
+                        <span class="font-bold ${style.text}">${currentWork}</span>
+                    </div>
+                `;
 
-                const scheduleList = document.getElementById('scheduleList');
-                scheduleList.innerHTML = '';
+                // List
+                const list = document.getElementById('scheduleList');
+                list.innerHTML = '';
+                const weeks = this.getWeeksInMonth(this.state.year, this.state.month);
                 
-                const weeks = this.getWeeksInMonth(this.currentYear, this.currentMonth);
                 weeks.forEach((w, wIdx) => {
-                    const work = this.getWorkForMemberWeek(idx, wIdx);
-                    const isCurrent = wIdx === this.currentWeekIndex;
+                    const work = this.getWork(idx, wIdx);
+                    const wStyle = CONFIG.styles[work];
+                    const isCurrent = wIdx === this.state.viewIndex;
                     
-                    const div = document.createElement('div');
-                    div.className = `p-3 rounded-xl flex justify-between items-center text-sm ${isCurrent ? 'bg-white/10 border border-indigo-500/50' : 'bg-black/20 border border-transparent'}`;
-                    div.innerHTML = `
-                        <span class="${isCurrent ? 'text-indigo-300 font-bold' : 'text-gray-400'}">Week ${w.weekNumber}</span>
-                        <span class="text-gray-200 font-medium">${work}</span>
+                    const row = document.createElement('div');
+                    row.className = `flex justify-between items-center p-3 rounded-lg ${isCurrent ? 'bg-white/10 border border-purple-500/50' : 'bg-white/5 border border-white/5'}`;
+                    row.innerHTML = `
+                        <div class="flex flex-col">
+                            <span class="text-xs ${isCurrent ? 'text-purple-300 font-bold' : 'text-gray-400'}">Week ${w.id}</span>
+                            <span class="text-[10px] text-gray-500">${w.label}</span>
+                        </div>
+                        <span class="text-xs font-medium ${wStyle.text}">${work}</span>
                     `;
-                    scheduleList.appendChild(div);
+                    list.appendChild(row);
                 });
 
-                this.els.profileModal.classList.remove('hidden');
+                // Animation Classes
+                this.ui.modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                
+                // Trigger entry animation
+                setTimeout(() => {
+                    this.ui.modalContent.classList.remove('opacity-0', 'scale-95', 'translate-y-10');
+                    this.ui.modalContent.classList.add('opacity-100', 'scale-100', 'translate-y-0');
+                }, 10);
+                
+                lucide.createIcons();
             }
 
             closeProfile() {
-                this.els.profileModal.classList.add('hidden');
+                // Trigger exit animation
+                this.ui.modalContent.classList.remove('opacity-100', 'scale-100', 'translate-y-0');
+                this.ui.modalContent.classList.add('opacity-0', 'scale-95', 'translate-y-10');
+                
+                setTimeout(() => {
+                    this.ui.modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }, 300);
             }
 
-            // --- PDF Export (Fixed) ---
+            /* --- PDF EXPORT --- */
             async generatePDF() {
-                const btn = this.els.generatePdfBtn;
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<div class="spinner"></div> Generating...';
+                const btn = this.ui.exportBtn;
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Generating...`;
                 btn.disabled = true;
+                lucide.createIcons();
 
                 try {
                     const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF('p', 'pt', 'a4');
+                    const doc = new jsPDF();
                     const pageWidth = doc.internal.pageSize.getWidth();
-                    const margin = 40;
-                    let y = 50;
+                    const monthName = this.ui.month.options[this.state.month].text;
 
-                    // Title
-                    doc.setFont('helvetica', 'bold');
+                    // Header
+                    doc.setFillColor(24, 24, 27); // Dark header
+                    doc.rect(0, 0, pageWidth, 40, 'F');
+                    
                     doc.setFontSize(22);
-                    doc.setTextColor(67, 56, 202); // Indigo 700
-                    doc.text('Monthly Duty Schedule', pageWidth / 2, y, { align: 'center' });
+                    doc.setTextColor(139, 92, 246); // Purple
+                    doc.setFont("helvetica", "bold");
+                    doc.text('Work Manage', 14, 20);
                     
-                    y += 20;
-                    doc.setFont('helvetica', 'normal');
                     doc.setFontSize(12);
-                    doc.setTextColor(107, 114, 128);
-                    const monthName = this.els.monthSelect.options[this.currentMonth].text;
-                    doc.text(`${monthName} ${this.currentYear}`, pageWidth / 2, y, { align: 'center' });
+                    doc.setTextColor(160, 160, 160);
+                    doc.setFont("helvetica", "normal");
+                    doc.text('Duty Roster Report', 14, 30);
 
-                    y += 40;
+                    doc.text(`${monthName} ${this.state.year}`, pageWidth - 14, 25, { align: 'right' });
 
-                    // --- Table 1: Weekly Duties (Enhanced) ---
-                    doc.setFontSize(16);
-                    doc.setTextColor(67, 56, 202); // Indigo 700
-                    doc.text('Weekly Duty Roster', margin, y);
-                    y += 15;
-
-                    const weeks = this.getWeeksInMonth(this.currentYear, this.currentMonth);
-                    const weeklyData = [];
+                    // Table
+                    const weeks = this.getWeeksInMonth(this.state.year, this.state.month);
+                    const headers = [['Member', ...weeks.map(w => `W${w.id} (${w.start.getDate()}-${w.end.getDate()})`)]];
                     
-                    // Create columns: Member Name, Week 1 (Date), Week 2 (Date)...
-                    const head = [
-                        ['Team Member', ...weeks.map(w => `Week ${w.weekNumber}\n${w.dateRange}`)]
-                    ];
-
-                    teamMembers.forEach((m, mIdx) => {
-                        const row = [m.name];
-                        weeks.forEach((w, wIdx) => {
-                            const hindiWork = this.getWorkForMemberWeek(mIdx, wIdx);
-                            const englishWork = workTranslations[hindiWork] || hindiWork; 
-                            row.push(englishWork);
-                        });
-                        weeklyData.push(row);
+                    const data = CONFIG.members.map((m, mIdx) => {
+                        return [
+                            m.name, 
+                            ...weeks.map((w, wIdx) => {
+                                const hindi = this.getWork(mIdx, wIdx);
+                                return CONFIG.translations[hindi] || hindi;
+                            })
+                        ];
                     });
 
                     doc.autoTable({
-                        startY: y,
-                        head: head,
-                        body: weeklyData,
+                        startY: 50,
+                        head: headers,
+                        body: data,
                         theme: 'grid',
+                        styles: { 
+                            fontSize: 10, 
+                            cellPadding: 6,
+                            lineColor: [230, 230, 230]
+                        },
                         headStyles: { 
-                            fillColor: [67, 56, 202], // Indigo 700
+                            fillColor: [139, 92, 246], 
                             textColor: 255, 
-                            fontStyle: 'bold',
-                            halign: 'center',
-                            valign: 'middle',
-                            fontSize: 10,
-                            cellPadding: 8
-                        },
-                        bodyStyles: {
-                            textColor: [55, 65, 81], // Gray 700
-                            fontSize: 10,
-                            cellPadding: 8,
-                            valign: 'middle'
-                        },
-                        alternateRowStyles: {
-                            fillColor: [245, 247, 255] // Very light indigo
+                            fontStyle: 'bold' 
                         },
                         columnStyles: {
-                            0: { fontStyle: 'bold', cellWidth: 'auto', fillColor: [255, 255, 255] }, // Name column
+                            0: { fontStyle: 'bold', fillColor: [245, 245, 255] }
                         },
-                        styles: {
-                            lineColor: [226, 232, 240], // Slate 200
-                            lineWidth: 0.5
-                        },
-                        margin: { left: margin, right: margin }
+                        alternateRowStyles: {
+                            fillColor: [250, 250, 250]
+                        }
                     });
 
                     // Footer
-                    const pageCount = doc.internal.getNumberOfPages();
-                    for(let i = 1; i <= pageCount; i++) {
+                    const pages = doc.internal.getNumberOfPages();
+                    for(let i = 1; i <= pages; i++) {
                         doc.setPage(i);
                         doc.setFontSize(8);
-                        doc.setTextColor(156, 163, 175);
-                        doc.text(`Generated on ${new Date().toLocaleDateString()} - Page ${i} of ${pageCount}`, pageWidth/2, doc.internal.pageSize.getHeight() - 20, {align:'center'});
+                        doc.setTextColor(150);
+                        doc.text(`Generated via Work Manage | ${new Date().toLocaleDateString()}`, 14, doc.internal.pageSize.getHeight() - 10);
                     }
 
-                    doc.save(`Schedule_${monthName}_${this.currentYear}.pdf`);
-                    addToast('Schedule PDF Downloaded!');
+                    doc.save(`Roster_${monthName}_${this.state.year}.pdf`);
+                    this.toast('Report downloaded successfully', 'success');
 
                 } catch (err) {
                     console.error(err);
-                    addToast('Error generating PDF');
+                    this.toast('Failed to generate PDF', 'error');
                 } finally {
-                    btn.innerHTML = originalText;
+                    btn.innerHTML = origHtml;
                     btn.disabled = false;
+                    lucide.createIcons();
                 }
+            }
+
+            /* --- UTILS --- */
+            toast(msg, type = 'info') {
+                const container = document.getElementById('toastContainer');
+                const el = document.createElement('div');
+                
+                const colors = {
+                    success: 'border-green-500/50 bg-green-900/80 text-white',
+                    error: 'border-red-500/50 bg-red-900/80 text-white',
+                    info: 'border-blue-500/50 bg-blue-900/80 text-white'
+                };
+                
+                el.className = `${colors[type]} backdrop-blur-md border px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-up pointer-events-auto min-w-[250px]`;
+                
+                const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'alert-octagon' : 'info';
+                
+                el.innerHTML = `
+                    <i data-lucide="${icon}" class="w-5 h-5"></i>
+                    <span class="font-medium text-sm">${msg}</span>
+                `;
+                
+                container.appendChild(el);
+                lucide.createIcons();
+                
+                setTimeout(() => {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(10px)';
+                    setTimeout(() => el.remove(), 300);
+                }, 3000);
             }
         }
 
-        // Init
-        let manager;
+        // Initialize
+        let app;
         document.addEventListener('DOMContentLoaded', () => {
-            manager = new TeamManager();
+            app = new App();
         });
     </script>
 </body>
